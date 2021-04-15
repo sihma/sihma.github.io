@@ -51,14 +51,11 @@ baseurl: ""
 
 # Prose configuration:
 prose:
+  rooturl: ''
   siteurl: 'https://sihma.github.io/'
   media: 'images'
   metadata:
     _posts:
-      - name: "category"
-        field:
-          element: "hidden"
-          value: "post"
       - name: "layout"
         field:
           element: "hidden"
@@ -69,10 +66,6 @@ prose:
           label: "Title"
           value: ""
     _posts/static:
-      - name: "category"
-        field:
-          element: "hidden"
-          value: "page"
       - name: "layout"
         field:
           element: "hidden"
