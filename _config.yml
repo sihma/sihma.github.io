@@ -80,7 +80,7 @@ prose:
           element: "text"
           label: "Permalink"
           value: ""
-          placeholder: "/example/
+          placeholder: "/example/"
 
 #
 # !! You don't need to change any of the configuration flags below !!
