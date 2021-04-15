@@ -6,7 +6,7 @@
 name: sihma
 
 # Short bio or description (displayed in the header)
-description: mashi's alter ego that's is into blogging
+description: "mashi's alter ego that's is into blogging"
 
 # URL of your avatar or profile pic (you could use your GitHub profile pic)
 avatar: https://raw.githubusercontent.com/sihma/sihma.github.io/master/images/avatar.jpeg
@@ -48,6 +48,28 @@ url: https://sihma.github.io
 # and NOT your User repository (http://yourusername.github.io)
 # then add in the baseurl here, like this: "/repository-name"
 baseurl: ""
+
+# Prose configuration:
+prose:
+  siteurl: 'https://sihma.github.io/'
+  media: 'images'
+  metadata:
+    _posts:
+      - name: "layout"
+        field:
+          element: "hidden"
+          value: "post"
+    _posts/static:
+      - name: "layout"
+        field:
+          element: "hidden"
+          value: "page"
+      - name: "permalink"
+        field:
+          element: "text"
+          label: "Permalink"
+          value: ""
+          placeholder: "/example/
 
 #
 # !! You don't need to change any of the configuration flags below !!
