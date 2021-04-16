@@ -1,6 +1,6 @@
 ---
 layout: post
-published: false
+published: true
 title: Back in it. Introduction
 ---
 Back in what? Getting into journaling again.
