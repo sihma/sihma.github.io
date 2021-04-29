@@ -1,6 +1,6 @@
 ---
 layout: post
-published: false
+published: true
 title: I'm waiting.
 ---
 I am kind of bored. In the town I'm in, in my neighborhood, in my school, life goes on and nothing new is happening.
