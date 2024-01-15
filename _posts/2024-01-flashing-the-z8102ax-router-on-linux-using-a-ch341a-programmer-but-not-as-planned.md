@@ -2,12 +2,12 @@
 layout: post
 published: false
 title: >-
-  Flashing the Z8102AX router on Linux using a CH341A programmer (but
-  not as planned)
+  Flashing the Z8102AX router on Linux using a CH341A programmer (but not as
+  planned)
 ---
 ## Intro
 
-I recently bought a ZBT Z8102AX-M2-T router on AliExpress straight from the manufacturer. I hoped to flash ROOTer on it to use it with a Quectel EM12-G LTE (cat. 12) modem for home Internet. Sadly, flashing following the instructions didn't work, whether from factory OpenWrt or from U-Boot recovery.
+I recently bought a [ZBT Z8102AX-M2-T](https://www.aliexpress.com/item/1005006081764535.html) router on AliExpress straight from the manufacturer. I hoped to flash [ROOTer](https://www.ofmodemsandmen.com/about.html) on it to use it with a Quectel EM12-G LTE (cat. 12) modem for mobile broadband "home" Internet. Sadly, flashing following the instructions didn't work, whether from factory OpenWrt or from U-Boot recovery.
 
 Rather, troubleshooting and forum discussions (on [Whirlpool ROOTer thread](https://forums.whirlpool.net.au/thread/3vx1k1r3)) all seemed to point out that flashing worked, but that the recent versions of this model had some hardware watchdog differences, causing it to reboot when not kicked correctly by the old software implementations.
 
@@ -24,21 +24,29 @@ I remembered once buying an [USB chip programmer](https://en.wikipedia.org/wiki/
 
 ## The programmer
 
+![The front of the programmer]({{site.baseurl}}/images/front-programmer.jpg)
+![The back of the programmer]({{site.baseurl}}/images/back-programmer.jpg)
+
 I bought [this](https://www.aliexpress.com/item/32725360255.html?spm=a2g0o.order_list.order_list_main.673.742e1802ZWtxu2) on AliExpress some time ago for flashing Libreboot on Thinkpads, which I never even did.
 
 To use it for UART rather than for I2C/EPP/MEM (or whatever thing I don't know about), remove the jumper between pin 1 and 2 ([source](https://unix.stackexchange.com/a/726789)).
 
+![The serial pins with the jumper off]({{site.baseurl}}/images/serial-pins-jumper-off.jpg)
+
 lsusb output, with the jumper:
-Bus 001 Device 009: ID 1a86:5512 QinHeng Electronics CH341 in EPP/MEM/I2C mode, EPP/I2C adapter
+
+	Bus 001 Device 009: ID 1a86:5512 QinHeng Electronics CH341 in EPP/MEM/I2C mode, EPP/I2C adapter
 Without the jumper:
-Bus 001 Device 008: ID 1a86:5523 QinHeng Electronics CH341 in serial mode, usb to serial port converter
+
+	Bus 001 Device 008: ID 1a86:5523 QinHeng Electronics CH341 in serial mode, usb to serial port converter
 
 dmesg shows that the USB adapter now has an attachment at /dev/ttyUSB0:
-[ 1878.530129] usb 1-1: new full-speed USB device number 11 using xhci_hcd
-[ 1878.670774] usb 1-1: New USB device found, idVendor=1a86, idProduct=5523, bcdDevice= 3.04
-[ 1878.670805] usb 1-1: New USB device strings: Mfr=0, Product=0, SerialNumber=0
-[ 1878.674783] ch341 1-1:1.0: ch341-uart converter detected
-[ 1878.675744] usb 1-1: ch341-uart converter now attached to ttyUSB0
+
+	[ 1878.530129] usb 1-1: new full-speed USB device number 11 using xhci_hcd
+	[ 1878.670774] usb 1-1: New USB device found, idVendor=1a86, idProduct=5523, bcdDevice= 3.04
+	[ 1878.670805] usb 1-1: New USB device strings: Mfr=0, Product=0, SerialNumber=0
+	[ 1878.674783] ch341 1-1:1.0: ch341-uart converter detected
+	[ 1878.675744] usb 1-1: ch341-uart converter now attached to ttyUSB0
 
 ## Wiring to the router serial port
 
@@ -49,7 +57,11 @@ You need normal female-female jumper wires (you might call these GPIO or DuPont 
 * White goes on transmit (TX).
 * (I believe the red cable would go on 3.3 V, but we mustn't use one here otherwise **risking damaging our router or adapter**. The router will already be powered by its power supply.)
 
+![How the wires should be plugged in on the programmer]({{site.baseurl}}/images/serial-wires-in.jpg)
+
 Do the same one the serial port on the router board. In some cases, like happened to me, you need to reverse the RX and TX cable there (green on TX and white on RX). Try it if you can't see anything on your terminal software. Doing so won't damage anything.
+
+![The serial pins on the router]({{site.baseurl}}/images/serial-pins-on-router.jpg)
 
 ## Serial terminal emulators
 
@@ -59,7 +71,9 @@ There is [a lot of options](https://wiki.archlinux.org/title/Working_with_the_se
 
 [GTKTerm](https://github.com/Jeija/gtkterm) can be installed on Arch Linux through AUR and is available on Debian repositories.
 
-Install it. Plug in the adapter. Go in configuration, port. Set the port to /dev/ttyUSB0 and the baud rate to 115200 (the joys of a GUI are here). Leave the rest as default. The bottom left should now show the open virtual serial port.
+Install it. Plug in the adapter. Open it (not before plugin the adapter). Go in configuration, port. Set the port to /dev/ttyUSB0 and the baud rate to 115200 (the joys of a GUI are here). Leave the rest as default. The bottom left should now show the open virtual serial port.
+
+![The router bootloader menu]({{site.baseurl}}/images/gtkterm-boot-menu.png)
 
 Plug in the router. Get to the boot dialog with options. Unplug the router if you want to have a look at it, because you only have 3 seconds before it frenetically scrolls. Press the key to select "Upgrade firmware" (here, 2). Press yes when asked if you want to run the firmware you will install (duh). And select TFTP as a load method (here, 0).
 
@@ -71,6 +85,8 @@ TFTP settings:
 * Input file name: Z8102AX-nand-mt7981-DDR4-23.0711_101616.bin
 * Don't press enter yet! The TFTP client will timeout after a number of tries and you'll have to restart (you might have to do so anyway if you take too long).
 
+![The full flashing process]({{site.baseurl}}/images/gtkterm-boot-flash.png)
+
 ## Setting the TFTP server to serve the image
 
 (Source for this part: [ArchWiki](https://wiki.archlinux.org/title/TFTP), or [for Debian](https://www.baeldung.com/linux/tftp-server-install-configure-test))
@@ -78,25 +94,29 @@ TFTP settings:
 Install tftp-hpa.
 
 Enable the TFTP daemon:
-sudo systemctl start tftpd.service
+
+	sudo systemctl start tftpd.service
 
 Check the configuration file (/etc/conf.d/tftpd or /etf/default/tftpd-hpa on Debian). Defaults should look something like this:
 
-TFTP_DIRECTORY="/srv/tftp"
-TFTP_OPTIONS="--secure"
+	TFTP_DIRECTORY="/srv/tftp"
+	TFTP_OPTIONS="--secure"
 
 You can add this line to allow only the router to connect:
-TFTP_ADDRESS="192.168.1.1"
+
+	TFTP_ADDRESS="192.168.1.1"
 
 The default directory is root-owned /srv/tftp (on Debian, /var/lib/tftpboot). You can specify another one. TFTP_ADDRESS is not yours but the router's.
 
 Then, as root, if not already done automatically during the installation:
-mkdir /srv/tftp
+
+	mkdir /srv/tftp
 
 Rename your ROOTer firmware and move it to the TFTP folder:
-cd Downloads
-sudo mv ZBT-Z8102AX-full-GO2024-01-10-upgrade.bin /srv/tftp/Z8102AX-nand-mt7981-DDR4-23.0711_101616.bin
-sudo systemctl restart tftpd.service
+
+	cd Downloads
+	sudo mv ZBT-Z8102AX-full-GO2024-01-10-upgrade.bin /srv/tftp/Z8102AX-nand-mt7981-DDR4-23.0711_101616.bin
+	sudo systemctl restart tftpd.service
 
 ## Set a static ip address
 
