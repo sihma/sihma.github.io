@@ -2,7 +2,7 @@
 layout: post
 published: false
 title: >-
-  UntitledFlashing the Z8102AX router on Linux using a CH341A programmer (but
+  Flashing the Z8102AX router on Linux using a CH341A programmer (but
   not as planned)
 ---
 ## Intro
